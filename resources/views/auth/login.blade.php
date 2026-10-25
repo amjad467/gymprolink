@@ -93,7 +93,7 @@
             </div>
 
             <!-- Login Form -->
-            <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
+            <form action="/login" method="POST" class="space-y-4">
                 @csrf
 
                 <!-- Login Identifier (Email or Phone or Username) -->

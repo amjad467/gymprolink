@@ -63,9 +63,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         opcache
 
 # Copy configurations
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+RUN rm -rf /etc/nginx/http.d /etc/nginx/conf.d
 
 WORKDIR /var/www/html
 

@@ -1,22 +1,34 @@
 #!/bin/sh
 set -e
 
-# Dynamically set port for Render
 PORT=${PORT:-80}
-echo "Configuring Nginx port: $PORT"
-sed -i "s/listen 80;/listen $PORT;/g" /etc/nginx/http.d/default.conf
+echo "Configuring application on port $PORT..."
 
-# Support Render PostgreSQL DATABASE_URL automatically
+# Replace listen port in nginx.conf
+sed -i "s/listen 80;/listen $PORT;/g" /etc/nginx/nginx.conf
+
+# Map Render PostgreSQL DATABASE_URL to DB_URL if available
 if [ -n "$DATABASE_URL" ] && [ -z "$DB_URL" ]; then
-    echo "Found DATABASE_URL, mapping to DB_URL for pgsql connection..."
+    echo "Using PostgreSQL DATABASE_URL..."
     export DB_URL="$DATABASE_URL"
     export DB_CONNECTION="pgsql"
 fi
 
-# If using SQLite, ensure database file exists
+# Create required directories for Nginx and PHP
+mkdir -p /run/nginx /var/run /var/log/nginx /var/lib/nginx/tmp
+chown -R www-data:www-data /run/nginx /var/log/nginx /var/lib/nginx
+
+# Ensure storage directories exist
+mkdir -p /var/www/html/database \
+         /var/www/html/storage/framework/cache/data \
+         /var/www/html/storage/framework/sessions \
+         /var/www/html/storage/framework/views \
+         /var/www/html/storage/logs \
+         /var/www/html/bootstrap/cache
+
+# If SQLite, ensure database.sqlite exists
 if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
-    echo "Using SQLite database..."
-    mkdir -p /var/www/html/database
+    echo "Ensuring SQLite database file..."
     if [ ! -f /var/www/html/database/database.sqlite ]; then
         touch /var/www/html/database/database.sqlite
     fi
@@ -24,29 +36,11 @@ if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
     chmod -R 775 /var/www/html/database
 fi
 
-# Ensure storage directories and permissions
-mkdir -p /var/www/html/storage/framework/cache/data \
-         /var/www/html/storage/framework/sessions \
-         /var/www/html/storage/framework/views \
-         /var/www/html/storage/logs \
-         /var/www/html/bootstrap/cache
-
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Create storage symlink
 php artisan storage:link --force || true
-
-# Discover packages
-php artisan package:discover --ansi || true
-
-# Production caches
-if [ "$APP_ENV" = "production" ]; then
-    echo "Caching configuration, routes, and views..."
-    php artisan config:cache || true
-    php artisan route:cache || true
-    php artisan view:cache || true
-fi
 
 # Run migrations
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
@@ -54,5 +48,9 @@ if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     php artisan migrate --force || true
 fi
 
-echo "Starting Supervisor (PHP-FPM + Nginx)..."
+# Verify Nginx configuration
+echo "Verifying Nginx configuration..."
+nginx -t
+
+echo "Starting Supervisord..."
 exec /usr/bin/supervisord -c /etc/supervisord.conf

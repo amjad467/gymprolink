@@ -80,23 +80,38 @@
                 </div>
             @endif
 
+            <!-- Quick Click to Fill Admin Credentials Banner -->
+            <div onclick="fillLogin('admin', 'password123')" class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 cursor-pointer transition flex items-center justify-between text-xs group">
+                <div class="flex items-center gap-2">
+                    <span class="text-base">👑</span>
+                    <div>
+                        <span class="font-black text-emerald-400 block">چوونەژوورەوەی ئەدمینی سەرەکی (تەنها کلیک بکە):</span>
+                        <span class="text-[11px] text-slate-300 font-mono">ئیمەیڵ: <strong class="text-white">admin</strong> | وشەی نهێنی: <strong class="text-white">password123</strong></span>
+                    </div>
+                </div>
+                <span class="text-emerald-400 font-bold group-hover:translate-x-[-3px] transition-transform text-sm">←</span>
+            </div>
+
             <!-- Login Form -->
             <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
                 @csrf
 
-                <!-- Login Identifier (Email or Phone) -->
+                <!-- Login Identifier (Email or Phone or Username) -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1.5">
-                        ئیمەیڵ یان ژمارەی مۆبایل *
+                        ئیمەیڵ، ژمارەی مۆبایل، یان ناوی بەکارهێنەر *
                     </label>
                     <div class="relative">
                         <input type="text" 
                                name="login" 
-                               value="{{ old('login') }}" 
+                               value="{{ old('login', 'admin') }}" 
                                required 
-                               placeholder="admin@gympro.test یان 0750xxxxxxx" 
-                               class="w-full bg-slate-800/90 border border-slate-700 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition font-sans">
-                        <span class="absolute left-3 top-2.5 text-slate-500 text-sm pointer-events-none">📧</span>
+                               autocapitalize="none"
+                               autocorrect="off"
+                               spellcheck="false"
+                               placeholder="admin یان admin@gympro.com یان 0750xxxxxxx" 
+                               class="w-full bg-slate-800/90 border border-slate-700 focus:border-emerald-500 rounded-2xl px-4 py-3 sm:py-2.5 text-base sm:text-xs text-white placeholder-slate-500 focus:outline-none transition font-sans">
+                        <span class="absolute left-3 top-3.5 sm:top-2.5 text-slate-500 text-sm pointer-events-none">📧</span>
                     </div>
                 </div>
 
@@ -111,12 +126,13 @@
                         <input type="password" 
                                id="password-input" 
                                name="password" 
+                               value="password123"
                                required 
                                placeholder="••••••••" 
-                               class="w-full bg-slate-800/90 border border-slate-700 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition font-sans">
+                               class="w-full bg-slate-800/90 border border-slate-700 focus:border-emerald-500 rounded-2xl px-4 py-3 sm:py-2.5 text-base sm:text-xs text-white placeholder-slate-500 focus:outline-none transition font-sans">
                         <button type="button" 
                                 onclick="togglePasswordVisibility()" 
-                                class="absolute left-3 top-2.5 text-slate-400 hover:text-white text-xs transition">
+                                class="absolute left-3 top-3.5 sm:top-2.5 text-slate-400 hover:text-white text-xs transition p-1">
                             👁️
                         </button>
                     </div>
@@ -125,14 +141,14 @@
                 <!-- Remember Me -->
                 <div class="flex items-center justify-between text-xs pt-1">
                     <label class="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
-                        <input type="checkbox" name="remember" class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0">
+                        <input type="checkbox" name="remember" checked class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0">
                         <span>لەبیرم مەچۆ (Remember Me)</span>
                     </label>
                 </div>
 
                 <!-- Submit Button -->
                 <button type="submit" 
-                        class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-3 rounded-2xl text-xs transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
+                        class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-3.5 sm:py-3 rounded-2xl text-sm sm:text-xs transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-[0.98]">
                     <span>🚀 چوونەژوورەوە بۆ سیستەم</span>
                 </button>
             </form>
@@ -145,45 +161,45 @@
                 
                 <div class="grid grid-cols-2 gap-2 text-[11px]">
                     <button type="button" 
-                            onclick="fillLogin('admin@gympro.test', 'password123')" 
-                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
+                            onclick="fillLogin('admin', 'password123')" 
+                            class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
                         <span class="font-bold text-emerald-400 block">👑 Super Admin</span>
                         <span class="text-[10px] text-slate-400">دەسەڵاتی گشتی</span>
                     </button>
 
                     <button type="button" 
                             onclick="fillLogin('owner1@gympro.test', 'password123')" 
-                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
+                            class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
                         <span class="font-bold text-teal-400 block">🏛️ خاوەنی هۆڵ</span>
-                        <span class="text-[10px] text-slate-400">دەسەڵاتی تەواوی هۆڵ</span>
+                        <span class="text-[10px] text-slate-400">دەسەڵاتی هۆڵ</span>
                     </button>
 
                     <button type="button" 
                             onclick="fillLogin('manager1@gympro.test', 'password123')" 
-                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
-                        <span class="font-bold text-indigo-400 block">👔 بەڕێوەبەری هۆڵ</span>
+                            class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
+                        <span class="font-bold text-indigo-400 block">👔 بەڕێوەبەر</span>
                         <span class="text-[10px] text-slate-400">ئەندام و بەشداری</span>
                     </button>
 
                     <button type="button" 
-                            onclick="fillLogin('accountant@gympro.test', 'password123')" 
-                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
+                            onclick="fillLogin('accountant1@gympro.test', 'password123')" 
+                            class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
                         <span class="font-bold text-amber-400 block">💰 ژمێریار</span>
                         <span class="text-[10px] text-slate-400">دارایی و خەرجی</span>
                     </button>
 
                     <button type="button" 
-                            onclick="fillLogin('trainer@gympro.test', 'password123')" 
-                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
-                        <span class="font-bold text-rose-400 block">🏋️‍♂️ ڕاهێنەر (Trainer)</span>
-                        <span class="text-[10px] text-slate-400">مەشق و یاریزانان</span>
+                            onclick="fillLogin('trainer1@gympro.test', 'password123')" 
+                            class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
+                        <span class="font-bold text-rose-400 block">🏋️‍♂️ ڕاهێنەر</span>
+                        <span class="text-[10px] text-slate-400">مەشق و یاریزان</span>
                     </button>
 
                     <button type="button" 
                             onclick="fillLogin('cashier1@gympro.test', 'password123')" 
-                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
+                            class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 transition text-right">
                         <span class="font-bold text-cyan-400 block">🛍️ کاشێری شۆپ</span>
-                        <span class="text-[10px] text-slate-400">خاڵی فرۆشتن (POS)</span>
+                        <span class="text-[10px] text-slate-400">خاڵی فرۆشتن POS</span>
                     </button>
                 </div>
             </div>

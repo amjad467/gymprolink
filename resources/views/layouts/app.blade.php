@@ -114,6 +114,23 @@
         html.light-mode .divide-slate-700 > :not([hidden]) ~ :not([hidden]) {
             border-color: #e2e8f0 !important;
         }
+
+        /* Mobile Touch & Viewport Responsiveness */
+        @media (max-width: 640px) {
+            input, select, textarea {
+                font-size: 16px !important; /* Prevents iOS Safari auto-zoom */
+            }
+        }
+        .overflow-x-auto, .overflow-y-auto {
+            -webkit-overflow-scrolling: touch;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased transition-colors duration-200">
@@ -141,7 +158,7 @@
                         <span class="text-base sm:text-lg font-black bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent block leading-tight">
                             {{ $currentGym->name ?? 'GymPro' }}
                         </span>
-                        <span class="text-[10px] sm:text-xs text-emerald-400 font-semibold block">
+                        <span class="text-[10px] sm:text-xs text-emerald-400 font-semibold hidden sm:block">
                             {{ $gymSettings['slogan'] ?? ($appLocale === 'ar' ? 'نظام النوادي وبوابات الدخول الذكية' : 'سیستەمی هۆڵ و دەرگای زیرەک') }}
                         </span>
                     </div>
@@ -443,7 +460,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-8">
         @if(session('success'))
             <div class="mb-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-2xl flex items-center justify-between shadow-lg">
                 <div class="flex items-center gap-2">
@@ -467,8 +484,34 @@
         @yield('content')
     </main>
 
+    <!-- Mobile Bottom Navigation Bar (تایبەت بە بەکارهێنەرانی مۆبایل) -->
+    <nav class="sm:hidden fixed bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 z-40 py-2 px-2 shadow-2xl transition-colors">
+        <div class="flex items-center justify-around text-center">
+            <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition {{ request()->routeIs('dashboard') ? 'text-emerald-400 font-black' : 'text-slate-400 hover:text-slate-200' }}">
+                <span class="text-xl">📊</span>
+                <span class="text-[10px] leading-none">{{ $appLocale === 'ar' ? 'الرئيسية' : 'سەرەکی' }}</span>
+            </a>
+            <a href="{{ route('attendance.index') }}" class="flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition {{ request()->routeIs('attendance.*') || request()->routeIs('gate.*') ? 'text-emerald-400 font-black' : 'text-slate-400 hover:text-slate-200' }}">
+                <span class="text-xl">🚪</span>
+                <span class="text-[10px] leading-none">{{ $appLocale === 'ar' ? 'الدخول' : 'دەرگا' }}</span>
+            </a>
+            <a href="{{ route('pos.index') }}" class="flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition {{ request()->routeIs('pos.*') ? 'text-emerald-400 font-black' : 'text-slate-400 hover:text-slate-200' }}">
+                <span class="text-xl">🛍️</span>
+                <span class="text-[10px] leading-none">{{ $appLocale === 'ar' ? 'نقطة البيع' : 'شۆپ POS' }}</span>
+            </a>
+            <a href="{{ route('members.index') }}" class="flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition {{ request()->routeIs('members.*') ? 'text-emerald-400 font-black' : 'text-slate-400 hover:text-slate-200' }}">
+                <span class="text-xl">👥</span>
+                <span class="text-[10px] leading-none">{{ $appLocale === 'ar' ? 'الأعضاء' : 'ئەندامان' }}</span>
+            </a>
+            <button type="button" onclick="openMegaMenu()" class="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition">
+                <span class="text-xl">📋</span>
+                <span class="text-[10px] leading-none">{{ $appLocale === 'ar' ? 'المزيد' : 'پێڕست' }}</span>
+            </button>
+        </div>
+    </nav>
+
     <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500 transition-colors">
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 mb-16 sm:mb-0 text-center text-xs text-slate-500 transition-colors">
         {{ $currentGym->name ?? 'GymPro' }} &copy; 2026 - {{ $appLocale === 'ar' ? 'النظام المتكامل لإدارة النوادي الرياضية والمبيعات' : 'سیستەمی پیشەیی فرە-هۆڵ، شۆپی تەواوکەر و دەرگای زیرەک' }}
     </footer>
 

@@ -49,10 +49,12 @@ if [ "$APP_ENV" = "production" ]; then
     php artisan view:cache || true
 fi
 
-# Run migrations
+# Run migrations & seed
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "Running database migrations..."
     php artisan migrate --force || true
+    echo "Running initial database seeder (gyms, users, plans)..."
+    php artisan db:seed --force || true
 fi
 
 echo "Starting Supervisor (PHP-FPM + Nginx)..."

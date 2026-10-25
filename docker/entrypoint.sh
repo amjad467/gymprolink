@@ -5,7 +5,6 @@ set -e
 PORT=${PORT:-80}
 echo "Configuring Nginx port: $PORT"
 sed -i "s/listen 80;/listen $PORT;/g" /etc/nginx/http.d/default.conf
-sed -i "s/listen \[::\]:80;/listen [::]:$PORT;/g" /etc/nginx/http.d/default.conf
 
 # Support Render PostgreSQL DATABASE_URL automatically
 if [ -n "$DATABASE_URL" ] && [ -z "$DB_URL" ]; then
@@ -49,12 +48,10 @@ if [ "$APP_ENV" = "production" ]; then
     php artisan view:cache || true
 fi
 
-# Run migrations & seed
+# Run migrations
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "Running database migrations..."
     php artisan migrate --force || true
-    echo "Running initial database seeder (gyms, users, plans)..."
-    php artisan db:seed --force || true
 fi
 
 echo "Starting Supervisor (PHP-FPM + Nginx)..."

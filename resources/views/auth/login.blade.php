@@ -8,6 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#059669">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GymPro">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -204,6 +215,17 @@
                 </div>
             </div>
 
+        <!-- Install GymPro Mobile App Button (PWA) -->
+        <div id="pwa-install-container" class="hidden">
+            <button type="button" 
+                    id="pwa-install-btn" 
+                    class="w-full bg-slate-900/90 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold py-3 px-4 rounded-2xl text-xs transition flex items-center justify-between shadow-xl">
+                <span class="flex items-center gap-2">
+                    <span class="text-base">📲</span>
+                    <span>دابەزاندنی GymPro وەک ئەپی مۆبایل</span>
+                </span>
+                <span class="bg-emerald-500 text-slate-950 px-2.5 py-1 rounded-xl text-[10px] font-black">داگرتن</span>
+            </button>
         </div>
 
         <div class="text-center text-xs text-slate-500">
@@ -220,6 +242,48 @@
         function fillLogin(login, pass) {
             document.querySelector('input[name="login"]').value = login;
             document.getElementById('password-input').value = pass;
+        }
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+
+        // PWA Install Prompt Handler
+        let deferredPrompt;
+        const installContainer = document.getElementById('pwa-install-container');
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installContainer) {
+                installContainer.classList.remove('hidden');
+            }
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installContainer.classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                } else {
+                    alert('بۆ داگرتن لە ئایفۆن (iOS Safari): لە خوارەوە پەنجە بنێ بە دوگمەی Share (هاوبەشکردن) پاشان Add to Home Screen (زیادکردن بۆ پەڕەی سەرەکی) هەڵبژێرە.');
+                }
+            });
+        }
+
+        // Show install button for iOS Safari if not in standalone mode
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+        if (isIos && !isStandalone && installContainer) {
+            installContainer.classList.remove('hidden');
         }
     </script>
 </body>

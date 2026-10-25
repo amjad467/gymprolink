@@ -30,6 +30,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? ($currentGym->name ?? 'GymPro Smart Management') }}</title>
     
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#059669">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GymPro">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+
     <!-- Google Fonts: Vazirmatn & Noto Kufi Arabic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -444,6 +455,11 @@
                                 📥 {{ $appLocale === 'ar' ? 'تصدير المشتركين المنتهيين (Excel)' : 'هەناردەی یاریزانانی بەسەرچوو (CSV)' }}
                             </a>
                         </li>
+                        <li id="app-install-menu-item">
+                            <button type="button" onclick="triggerPwaInstall()" class="w-full text-right block p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 transition text-emerald-300 font-bold">
+                                📲 {{ $appLocale === 'ar' ? 'تثبيت التطبيق على الهاتف' : 'داگرتنی ئەپڵیکەیشن بۆ سەر مۆبایل (PWA)' }}
+                            </button>
+                        </li>
                     </ul>
                 </div>
 
@@ -570,6 +586,30 @@
                 if (ic) ic.textContent = '☀️';
             }
         })();
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+
+        let pwaDeferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            pwaDeferredPrompt = e;
+        });
+
+        function triggerPwaInstall() {
+            if (pwaDeferredPrompt) {
+                pwaDeferredPrompt.prompt();
+                pwaDeferredPrompt.userChoice.then(() => {
+                    pwaDeferredPrompt = null;
+                });
+            } else {
+                alert('بۆ داگرتن لە مۆبایل (iOS Safari / Chrome):\nلە وێبگەڕی مۆبایلەکەدا پەنجە بنێ بە دوگمەی Share پاشان (Add to Home Screen / زیادکردن بۆ پەڕەی سەرەکی) هەڵبژێرە.');
+            }
+        }
     </script>
 
     @stack('scripts')

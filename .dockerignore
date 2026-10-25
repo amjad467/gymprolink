@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.vscode
+node_modules
+vendor
+.env
+.env.*
+!.env.example
+tests
+phpunit.xml
+.phpunit.result.cache
+/COM[0-9]*
+/public/COM[0-9]*
+*.md

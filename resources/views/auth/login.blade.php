@@ -215,21 +215,74 @@
                 </div>
             </div>
 
-        <!-- Install GymPro Mobile App Button (PWA) -->
-        <div id="pwa-install-container" class="hidden">
+        <!-- Install GymPro Mobile App Banner (PWA) -->
+        <div id="pwa-install-container" class="block">
             <button type="button" 
                     id="pwa-install-btn" 
-                    class="w-full bg-slate-900/90 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold py-3 px-4 rounded-2xl text-xs transition flex items-center justify-between shadow-xl">
-                <span class="flex items-center gap-2">
-                    <span class="text-base">📲</span>
-                    <span>دابەزاندنی GymPro وەک ئەپی مۆبایل</span>
+                    onclick="handleAppInstallClick()"
+                    class="w-full bg-gradient-to-r from-emerald-600/30 via-slate-900 to-teal-600/20 hover:from-emerald-600/40 hover:to-teal-600/30 border border-emerald-500/50 text-white font-bold p-3.5 rounded-2xl text-xs transition flex items-center justify-between shadow-xl shadow-emerald-950/50 group">
+                <div class="flex items-center gap-3 text-right">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl shrink-0">
+                        📲
+                    </div>
+                    <div>
+                        <span class="font-black text-white block text-xs">دابەزاندنی GymPro بۆ سەر شاشەی مۆبایل</span>
+                        <span class="text-[11px] text-emerald-300">ئایکۆنی ئەپ دادەنێت و بەبێ وێبگەڕ دەکرێتەوە</span>
+                    </div>
+                </div>
+                <span class="bg-emerald-500 group-hover:bg-emerald-400 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-black shrink-0 transition shadow">
+                    داگرتن ⬇
                 </span>
-                <span class="bg-emerald-500 text-slate-950 px-2.5 py-1 rounded-xl text-[10px] font-black">داگرتن</span>
             </button>
         </div>
 
         <div class="text-center text-xs text-slate-500">
             GymPro Multi-Gym Management & Smart Access Control Platform &copy; {{ date('Y') }}
+        </div>
+    </div>
+
+    <!-- PWA Installation Guide Modal for iPhone and Android -->
+    <div id="pwa-guide-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-right">
+            <button type="button" onclick="closePwaModal()" class="absolute left-4 top-4 text-slate-400 hover:text-white text-lg font-bold w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                &times;
+            </button>
+            <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center font-black text-white text-lg shadow-lg">
+                    GP
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">چۆنیەتی دابەزاندنی ئەپی GymPro</h3>
+                    <p class="text-[11px] text-emerald-400">هەنگاو بە هەنگاو بۆ سەر شاشەی مۆبایل</p>
+                </div>
+            </div>
+
+            <!-- Steps -->
+            <div class="space-y-3 text-xs text-slate-300">
+                <div class="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                    <div class="font-bold text-white flex items-center gap-1.5">
+                        <span class="text-emerald-400">١.</span>
+                        <span>ئەگەر ئایفۆنە (Safari):</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        لە خوارەوەی وێبگەڕی سەفاری پەنجە بنێ بە دوگمەی <strong class="text-white">هاوبەشکردن (Share 📤)</strong>، پاشان کەمێک بڕۆ خوارەوە و کلیک بکە لەسەر <strong class="text-emerald-400">Add to Home Screen ➕</strong>.
+                    </p>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/60 space-y-1">
+                    <div class="font-bold text-white flex items-center gap-1.5">
+                        <span class="text-teal-400">٢.</span>
+                        <span>ئەگەر ئەندرۆیدە (Chrome):</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        لە سەرەوە دەستە ڕاست پەنجە بنێ بە سێ خاڵەکە <strong class="text-white">`⋮`</strong>، پاشان هەڵبژێرە <strong class="text-emerald-400">Install app</strong> یان <strong class="text-emerald-400">Add to Home screen</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <button type="button" onclick="closePwaModal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-2xl text-xs transition">
+                تێگەیشتم (داخستن)
+            </button>
         </div>
     </div>
 
@@ -252,39 +305,40 @@
         }
 
         // PWA Install Prompt Handler
-        let deferredPrompt;
-        const installContainer = document.getElementById('pwa-install-container');
-        const installBtn = document.getElementById('pwa-install-btn');
-
+        let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            if (installContainer) {
-                installContainer.classList.remove('hidden');
-            }
         });
 
-        if (installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        installContainer.classList.add('hidden');
+        function handleAppInstallClick() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        const container = document.getElementById('pwa-install-container');
+                        if (container) container.classList.add('hidden');
                     }
                     deferredPrompt = null;
-                } else {
-                    alert('بۆ داگرتن لە ئایفۆن (iOS Safari): لە خوارەوە پەنجە بنێ بە دوگمەی Share (هاوبەشکردن) پاشان Add to Home Screen (زیادکردن بۆ پەڕەی سەرەکی) هەڵبژێرە.');
-                }
-            });
+                });
+            } else {
+                // Open visual step-by-step guide
+                document.getElementById('pwa-guide-modal').classList.remove('hidden');
+            }
         }
 
-        // Show install button for iOS Safari if not in standalone mode
-        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-        const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-        if (isIos && !isStandalone && installContainer) {
-            installContainer.classList.remove('hidden');
+        function closePwaModal() {
+            document.getElementById('pwa-guide-modal').classList.add('hidden');
         }
+
+        // Check if already in standalone app mode
+        window.addEventListener('DOMContentLoaded', () => {
+            const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+            if (isStandalone) {
+                const container = document.getElementById('pwa-install-container');
+                if (container) container.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>

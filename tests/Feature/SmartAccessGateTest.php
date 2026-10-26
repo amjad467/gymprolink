@@ -168,6 +168,7 @@ class SmartAccessGateTest extends TestCase
      */
     public function test_anti_passback_denies_immediate_duplicate_scan(): void
     {
+        config(['access.anti_passback_enabled' => true]);
         $gym1 = Gym::where('code', 'CENTRAL')->first();
         $device = AccessDevice::where('gym_id', $gym1->id)->first();
         $activeMember = Member::withoutGlobalScopes()

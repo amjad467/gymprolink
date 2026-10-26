@@ -54,11 +54,20 @@ class GateSimulatorController extends Controller
         );
 
         if (!empty($result['access'])) {
-            try {
-                $arduino = app(\App\Services\ArduinoRelayService::class);
-                $result['arduino'] = $arduino->triggerRelay();
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("Arduino trigger failed: " . $e->getMessage());
+            $hasWebSerial = $request->boolean('has_web_serial', false);
+            if (!$hasWebSerial) {
+                try {
+                    $arduino = app(\App\Services\ArduinoRelayService::class);
+                    $result['arduino'] = $arduino->triggerRelay();
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning("Arduino trigger failed: " . $e->getMessage());
+                }
+            } else {
+                $result['arduino'] = [
+                    'success' => true,
+                    'method' => 'web_serial',
+                    'message' => 'سیگناڵ لە وێبگەڕەوە نێردرا بە Web Serial.',
+                ];
             }
         }
 

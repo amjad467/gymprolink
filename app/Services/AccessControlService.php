@@ -346,25 +346,28 @@ class AccessControlService
             }
         }
 
-        // ٩. پشکنینی Anti-Passback (ڕێگری لە دووبارە سکەنکردنی دەستبەجێ لە کەمتر لە ٥ خولەکدا)
-        $recentScan = AccessEvent::where('gym_id', $gymId)
-            ->where('member_id', $member->id)
-            ->where('status', 'GRANTED')
-            ->where('scanned_at', '>=', now()->subMinutes(5))
-            ->first();
+        // ٩. پشکنینی Anti-Passback (وەستانی ٥ خولەکی ئەگەر لە ڕێکخستنەکاندا چالاک کرابێت)
+        $antiPassbackEnabled = config('access.anti_passback_enabled', env('ANTI_PASSBACK_ENABLED', false));
+        if ($antiPassbackEnabled) {
+            $recentScan = AccessEvent::where('gym_id', $gymId)
+                ->where('member_id', $member->id)
+                ->where('status', 'GRANTED')
+                ->where('scanned_at', '>=', now()->subMinutes(5))
+                ->first();
 
-        if ($recentScan) {
-            return $this->logAndDeny(
-                $gymId,
-                $device->id,
-                $member->id,
-                $membership->id,
-                $scannedCode,
-                'anti_passback',
-                'ئەم کۆدە کەمێک پێش ئێستا بەکارهاتووە. تکایە پاش ٥ خولەک هەوڵ بدەرەوە.',
-                $startTime,
-                $clientIp
-            );
+            if ($recentScan) {
+                return $this->logAndDeny(
+                    $gymId,
+                    $device->id,
+                    $member->id,
+                    $membership->id,
+                    $scannedCode,
+                    'anti_passback',
+                    'ئەم کۆدە کەمێک پێش ئێستا بەکارهاتووە. تکایە پاش ٥ خولەک هەوڵ بدەرەوە.',
+                    $startTime,
+                    $clientIp
+                );
+            }
         }
 
         // هەموو مەرجەکان سەرکەوتوون: تۆمارکردنی سەردان و زیادکردنی ژمارەی هاتنەژوورەوە

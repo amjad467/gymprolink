@@ -34,8 +34,8 @@ class ArduinoRelayService
         try {
             // ئەگەر سیستەمەکە لەسەر Windows بێت:
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                // ڕێکخستنی خێرایی باود لە Windows بە کەرەستەی mode
-                @exec("mode {$cleanPort}: BAUD={$baud} PARITY=N DATA=8 STOP=1 to=off 2>&1", $out, $returnVar);
+                // ڕێکخستنی خێرایی باود لە Windows و ناچالاککردنی DTR بۆ ئەوەی ئاردینۆ نانۆ ڕیست نەبێتەوە
+                @exec("mode {$cleanPort}: BAUD={$baud} PARITY=N DATA=8 STOP=1 dtr=off rts=off to=off 2>&1", $out, $returnVar);
 
                 // کردنەوەی هێڵی Serial بە ناوی پێشکەوتووی کەرەستەکانی ویندۆز
                 $devicePath = "\\\\.\\" . $cleanPort;
@@ -54,8 +54,8 @@ class ArduinoRelayService
                     ];
                 }
 
-                // ناردنی فرمانی کردنەوە بۆ ئاردینۆ
-                fwrite($fp, $command . "\n");
+                // ناردنی فرمانی کردنەوە بۆ ئاردینۆ نانۆ (تەنها پیتی '1' بە بێ دێڕی نوێ)
+                fwrite($fp, (string) $command);
                 fflush($fp);
                 fclose($fp);
 

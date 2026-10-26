@@ -189,13 +189,20 @@ class AttendanceController extends Controller
 
         // لە حاڵەتی ڕێگەپێدان: ناردنی سیگناڵ بۆ ئاردینۆ و چرکاندنی ڕیلەی دەرگا (Arduino Relay Trigger)
         $arduinoResult = null;
-        if ($action === 'ENTRY' || config('arduino.trigger_on_exit', false)) {
+        $hasWebSerial = $request->boolean('has_web_serial', false);
+        if (($action === 'ENTRY' || config('arduino.trigger_on_exit', false)) && !$hasWebSerial) {
             try {
                 $arduinoService = app(\App\Services\ArduinoRelayService::class);
                 $arduinoResult = $arduinoService->triggerRelay();
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning("Arduino trigger failed: " . $e->getMessage());
             }
+        } elseif ($hasWebSerial) {
+            $arduinoResult = [
+                'success' => true,
+                'method' => 'web_serial',
+                'message' => 'سیگناڵ لە ڕێگەی براوسەرەوە ڕاستەوخۆ نێردرا بۆ ئاردینۆ (Web Serial).',
+            ];
         }
 
         return response()->json([

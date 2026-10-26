@@ -228,7 +228,8 @@
                 },
                 body: JSON.stringify({
                     device_id: deviceId,
-                    scanned_code: scannedCode
+                    scanned_code: scannedCode,
+                    has_web_serial: !!webSerialWriter
                 })
             });
 
@@ -327,7 +328,10 @@
     async function sendArduinoPulse() {
         if (webSerialWriter) {
             try {
-                await webSerialWriter.write(new TextEncoder().encode("1\n"));
+                const encoder = new TextEncoder();
+                await webSerialWriter.write(encoder.encode("1\n"));
+                await webSerialWriter.write(encoder.encode("O\n"));
+                await webSerialWriter.write(encoder.encode("1"));
             } catch (e) {
                 console.error(e);
             }

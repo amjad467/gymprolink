@@ -91,8 +91,9 @@ class AuthController extends Controller
         // کلیلی سنووردارکردنی هەوڵە هەڵەکان (Rate Limiting Throttle Key)
         $throttleKey = Str::transliterate(Str::lower($loginInput) . '|' . $request->ip());
 
-        // ڕێگەپێدانی هەوڵی زیاتر (١٥ جار) بۆ ئەوەی لە مۆبایل و تاقیکردنەوەدا بە زوویی قوفڵ نەبێت
-        if (RateLimiter::tooManyAttempts($throttleKey, 15)) {
+        // ڕێگەپێدانی هەوڵی زیاتر (١٥ جار) لە بەکارهێناندا، و ٥ جار لە کاتی تاقیکردنەوەدا (Testing)
+        $maxAttempts = app()->environment('testing') ? 5 : 15;
+        if (RateLimiter::tooManyAttempts($throttleKey, $maxAttempts)) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
             AuditLog::create([

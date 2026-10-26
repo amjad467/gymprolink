@@ -774,7 +774,8 @@
                 },
                 body: JSON.stringify({
                     scanned_code: code,
-                    mode: mode
+                    mode: mode,
+                    has_web_serial: !!webSerialWriter
                 })
             });
 
@@ -868,10 +869,12 @@
                     document.getElementById('kpi-currently-inside').textContent = data.stats.currently_inside;
                 }
 
-                // نوێکردنەوەی خشتە پاش ٢ چرکە بۆ ئەوەی ڕاستەوخۆ دەربکەوێت لەناو خشتەکەدا
+                // ئامادەکردنی خانەی نووسین بۆ یاریزانی دواتر بێ ئەوەی پەڕەکە ڕیفریش ببێتەوە و پەیوەندی ئاردینۆ بپچڕێت
                 setTimeout(() => {
-                    window.location.reload();
-                }, 2200);
+                    input.value = '';
+                    input.disabled = false;
+                    input.focus();
+                }, 1800);
 
             } else {
                 // ٢. ڕەتکردنەوە (DENIED) - هاوشێوەی مەرجەکانی ئەکسێس
@@ -954,9 +957,10 @@
     async function sendArduinoPulse() {
         if (webSerialWriter) {
             try {
-                const encoder = new TextEncoder();
-                await webSerialWriter.write(encoder.encode("1\n"));
-                console.log("✓ Command '1' sent to Arduino via Web Serial");
+                // ناردنی ڕاستەوخۆی بایتی 49 (پیتی '1') بە تەواوی هاوشێوەی سیستەمی ئەکسسەکە بۆ ئاردینۆ نانۆ
+                const pulse = new Uint8Array([49]); // ASCII 49 = '1'
+                await webSerialWriter.write(pulse);
+                console.log("✓ Gate pulse byte '1' (49) sent to Arduino Nano via Web Serial");
             } catch (err) {
                 console.error("Web Serial write failed:", err);
             }
